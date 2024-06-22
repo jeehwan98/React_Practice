@@ -9,12 +9,13 @@ import Input from './Input.jsx';
  // and now this template literal which should now contain all the styles we want to apply to this div here
  // can write standard CSS code in here
  // this will automatically return us a div that has these styles applied to it
-const ControlContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-`
+ 
+// const ControlContainer = styled.div`
+//   display: flex;
+//   flex-direction: column;
+//   gap: 0.5rem;
+//   margin-bottom: 1.5rem;
+// `
 
 export default function AuthInputs() {
   const [enteredEmail, setEnteredEmail] = useState('');
@@ -55,7 +56,7 @@ export default function AuthInputs() {
             // className={emailNotValid ? 'invalid' : undefined} // not preferred
             onChange={(event) => handleInputChange('email', event.target.value)}
           />
-        <p>
+        {/* <p> */}
           {/* these styled components do not just use the children prop so that we can wrap them around context */}
           {/* but they also forward all props we're setting on styled components to the underlying built in JSX element */}
           {/* <Label className={`label ${passwordNotValid ? 'invalid' : ''}`}>Password</Label> */}
@@ -71,7 +72,7 @@ export default function AuthInputs() {
               handleInputChange('password', event.target.value)
             }
           />
-        </p>
+        {/* </p> */}
       {/* </ControlContainer> */}
       </div>
       {/* <Label> */}
