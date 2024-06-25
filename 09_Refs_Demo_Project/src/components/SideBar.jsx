@@ -39,8 +39,6 @@ export default function SideBar({ onStartAddProject, formData, projects, onSelec
                             </button>
                         </li>);
                 })}
-
-                
             </ul>
         </aside>
     )
