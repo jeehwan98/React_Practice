@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback, useEffect } from 'react';
+import { useRef, useState, useCallback } from 'react';
 
 import Places from './components/Places.jsx';
 import Modal from './components/Modal.jsx';
@@ -7,31 +7,21 @@ import logoImg from './assets/logo.png';
 import AvailablePlaces from './components/AvailablePlaces.jsx';
 import { fetchUserPlaces, updateUserPlaces } from './http.js';
 import Error from './components/Error.jsx';
+import { useFetch } from '../../16_Custom_Hooks/src/hooks/useFetch.js';
 
 function App() {
   const selectedPlace = useRef();
 
-  const [userPlaces, setUserPlaces] = useState([]);
-  const [ isFetching, setIsFetching ] = useState(false);        // loading state
-  const [ error, setError ] = useState();                       // error state
   const [errorUpdatingPlaces, setErrorUpdatingPlaces] = useState();
 
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
-  useEffect(() => {
-    async function fetchPlaces() {
-      setIsFetching(true);
-      try {
-        const places = await fetchUserPlaces();
-        setUserPlaces(places);
-      } catch (error) {
-        setError({message: error.message || 'Failed to fetch user places.'});
-      }
-      setIsFetching(false);
-    }
-
-    fetchPlaces();
-  }, []);
+  const { 
+    isFetching,
+    error, 
+    fetchedData: userPlaces,
+    setFetchedData: setUserPlaces,
+  } = useFetch(fetchUserPlaces, []);
 
   function handleStartRemovePlace(place) {
     setModalIsOpen(true);
@@ -79,13 +69,13 @@ function App() {
     } catch (error) {
       // set the values back to what it was
       setUserPlaces(userPlaces);
-      setErrorUpdatingPlaces({message: error.message || 'Failed to delete place.',
-
-      })
+      setErrorUpdatingPlaces({
+        message: error.message || 'Failed to delete place.',
+      });
     }
 
     setModalIsOpen(false);
-  }, [userPlaces]); // we have to add the userPlaces as the dependency array since we're using the userPlaces in the await updateUserPlaces
+  },[userPlaces, setUserPlaces]); // we have to add the userPlaces as the dependency array since we're using the userPlaces in the await updateUserPlaces
   // this is crucial as it's important that we're sending the right updated places to the backend server
 
   function handleError() {
@@ -121,16 +111,19 @@ function App() {
       <main>
         {error && <Error title="An error occurred!" message={error.message} />}
         {/* Places should only be rendered when there is no error */}
-        {!error && (<Places
-          title="I'd like to visit ..."
-          fallbackText="Select the places you would like to visit below."
-          isLoading={isFetching}
-          loadingText="Fetching your places..."
-          places={userPlaces}
-          onSelectPlace={handleStartRemovePlace}
-        />}
-
-        <AvailablePlaces onSelectPlace={handleSelectPlace} />
+        {!error && (
+          <Places
+            title="I'd like to visit ..."
+            fallbackText="Select the places you would like to visit below."
+            isLoading={isFetching}
+            loadingText="Fetching your places..."
+            places={userPlaces}
+            onSelectPlace={handleStartRemovePlace}
+          />
+        )}
+        <AvailablePlaces
+          onSelectPlace={handleSelectPlace}
+        />
       </main>
     </>
   );
