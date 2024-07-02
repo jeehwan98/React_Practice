@@ -3,7 +3,8 @@ import { createContext, useReducer } from "react"; // used to just spread the da
 const CartContext = createContext({
     items: [],
     addItem: (item) => { },
-    removeItem: (id) => { }
+    removeItem: (id) => { },
+    clearCart: () => { }
 });
 
 // goal of this function is to return an updated state
@@ -37,20 +38,26 @@ function cartReducer(state, action) {  // these parameters are passed into the f
         );
         const existingCartItem = state.items[existingCartItemIndex];
 
-        const updatedItems = [...state.items];
+        // const updatedItems = [...state.items];
 
-        if (existingCartItem.quantity === 1) { // if only one item -> delete
-            // method 1 to remove the item from the cart
-            updatedItems.splice(existingCartItemIndex, 1);
-        } else {                               // if more than one, -> reduce the quantity
-            const updatedItem = {
-                ...existingCartItem,
-                quantity: existingCartItem.quantity - 1
-            };
-            updatedItems[existingCartItemIndex] = updatedItem;
+        if (existingCartItem) {
+            const updatedItems = [...state.items];
+            if (existingCartItem.quantity === 1) {
+                updatedItems.splice(existingCartItemIndex, 1);
+            } else {
+                const updatedItem = {
+                    ...existingCartItem,
+                    quantity: existingCartItem.quantity - 1
+                };
+                updatedItems[existingCartItemIndex] = updatedItem;
+            }
+            return { ...state, items: updatedItems };
         }
-    }
 
+    }
+    if (action.type === 'CLEAR_CART') {
+        return { ...state, items: [] };
+    }
     return state;
 }
 
@@ -70,10 +77,15 @@ export function CartContextProvider({ children }) {
         dispatchCartAction({ type: 'REMOVE_ITEM', id });
     }
 
+    function clearCart() {
+        dispatchCartAction({ type: 'CLEAR_CART' });
+    }
+
     const cartContext = {
         items: cart.items,
         addItem,
-        removeItem
+        removeItem,
+        clearCart
     };
 
     // 확인용
