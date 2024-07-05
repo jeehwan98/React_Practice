@@ -1,26 +1,23 @@
 import { useDispatch, useSelector } from 'react-redux';
 import classes from './CartItem.module.css';
-import { cartItemActions } from '../../store/cartItem';
+import { cartActionss } from '../../store/cart-slice';
 
 const CartItem = (props) => {
-  const { title } = props.item;
+  const { title, quantity, total, price, id } = props.item;
 
   const dispatch = useDispatch();
-  const manageQuantity = useSelector(state => state.cartItem.quantity);
-  const item = useSelector(state => state.cartItem);
 
   const decrementHandler = () => {
-    dispatch(cartItemActions.decrement());
+    dispatch(cartActionss.removeItemFromCard(id));
   }
-
-  const total = item.price * manageQuantity;
 
   const incremetHandler = () => {
-    dispatch(cartItemActions.increment());
-  }
+    dispatch(cartActionss.addItemToCart({
+      id,
+      title,
+      price,
+    }));
 
-  if (manageQuantity < 0) {
-    return;
   }
 
   return (
@@ -29,12 +26,12 @@ const CartItem = (props) => {
         <h3>{title}</h3>
         <div className={classes.price}>
           ${total.toFixed(2)}{' '}
-          <span className={classes.itemprice}>(${item.price.toFixed(2)}/item)</span>
+          <span className={classes.itemprice}>(${price.toFixed(2)}/item)</span>
         </div>
       </header>
       <div className={classes.details}>
         <div className={classes.quantity}>
-          x <span>{manageQuantity}</span>
+          x <span>{quantity}</span>
         </div>
         <div className={classes.actions}>
           <button onClick={decrementHandler}>-</button>

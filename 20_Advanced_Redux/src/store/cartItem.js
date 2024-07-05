@@ -11,7 +11,7 @@ const cartItemSlice = createSlice({
     name: 'cartItem',
     initialState: initialCartItemState,
     reducers: {
-        increment(state) {
+        increment(state, action) {
             state.quantity++;
         },
 
