@@ -1,26 +1,31 @@
-import { Link, useRouteLoaderData, json, redirect } from 'react-router-dom';
+import { Suspense } from 'react';
+import { Link, useRouteLoaderData, json, redirect, defer, Await } from 'react-router-dom';
 import EventItem from '../components/EventItem.js';
+import EventsList from '../components/EventsList.js';
 
 function EventDetailPage() {
-    const data = useRouteLoaderData('event-detail');
+    // const data = useRouteLoaderData('event-detail');
+    const { event, events } = useRouteLoaderData('event-detail');
 
     return (
         <>
-            <EventItem event={data.event} />
-            {/* <p>
-                <button>
-                    <Link to='..' relative="path">Back</Link>
-                </button>
-            </p> */}
+            <Suspense fallback={<p style={{ textAlign: 'center' }}>Loading...</p>}>
+                <Await resolve={event}>
+                    {loadedEvent => <EventItem event={loadedEvent} />}
+                </Await>
+            </Suspense>
+            <Suspense fallback={<p style={{ textAlign: 'center' }}>Loading...</p>}>
+                <Await resolve={events}>
+                    {loadedEvents => <EventsList events={loadedEvents} />}
+                </Await>
+            </Suspense>
         </>
     )
 }
 
 export default EventDetailPage;
 
-export async function loader({ request, params }) { // object contains 2 important pieces 1. request, 2. params
-    const id = params.eventId;
-
+async function loadEvent(id) {
     const response = await fetch('http://localhost:8080/events/' + id);
 
     if (!response.ok) {
@@ -32,8 +37,34 @@ export async function loader({ request, params }) { // object contains 2 importa
     } else {
         // const data = await response.json(); // Parse the JSON response
         // console.log('Fetched data:', data.event);
-        return response;
+        const resData = await response.json();
+        return resData.event;
     }
+}
+
+async function loadEvents() {
+    const response = await fetch('http://localhost:8080/events');
+
+    if (!response.ok) {
+        throw json({ message: 'Could not fetch events.' },
+            {
+                status: 500
+            },
+        );
+    } else {
+        // return response;
+        const resData = await response.json();
+        return resData.events;
+    }
+}
+
+export function loader({ request, params }) { // object contains 2 important pieces 1. request, 2. params
+    const id = params.eventId;
+
+    return defer({
+        event: loadEvent(id),
+        events: loadEvents(),
+    });
 }
 
 // after stating the loader function, we have to state it in the root component, which is the App.js
