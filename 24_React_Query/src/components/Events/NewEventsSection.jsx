@@ -7,10 +7,11 @@ import { fetchEvents } from '../util/http.js';
 
 export default function NewEventsSection() {
   const { data, isPending, isError, error } = useQuery({ // this hook sends HTTP request behind the scenes, get us the events data that we need and give us info about the loading state
-    queryKey: ['events'], // set the key
-    queryFn: fetchEvents, // query that will be executed
-    staleTime: 5000,      // able to control the behavior that we want (time)... default is 0
-    // gcTime: 3000,      // controls how long the cached data is kept... default 5m
+    queryKey: ['events', { max: 3 }],                         // set the key
+    // queryFn: ({ signal }) => fetchEvents({ signal, max: 3 }), // query that will be executed
+    queryFn: ({ signal, queryKey }) => fetchEvents({ signal, ...queryKey[1] }), // can be rewritten this way to acces the max: 3
+    staleTime: 5000,                                          // able to control the behavior that we want (time)... default is 0
+    // gcTime: 3000,                                          // controls how long the cached data is kept... default 5m
   });
 
   let content;
