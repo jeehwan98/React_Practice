@@ -4,7 +4,13 @@ import classes from './page.module.css';
 import MealsGrid from "../../components/meals/meals-grid";
 import { getMeals } from "../../lib/meals";
 
+export const metadata = {
+    title: 'All Meals',
+    description: 'Brwose the delicious meals shared by our vibrant community',
+};
+
 async function Meals() { // this is the component that will be responsible for fetching the data
+    console.log('Fetching meals');
     const meals = await getMeals();
     return <MealsGrid meals={meals} />
 }

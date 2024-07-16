@@ -1,6 +1,7 @@
 'use server';
 import { redirect } from 'next/navigation';
 import { saveMeal } from "./meals";
+import { revalidatePath } from 'next/cache';
 
 // all files written in this file will be treated as server actions
 
@@ -35,5 +36,6 @@ export async function shareMeal(prevState, formData) {
     }
 
     await saveMeal(meal);
+    revalidatePath('/meals');
     redirect('/meals');
 }
