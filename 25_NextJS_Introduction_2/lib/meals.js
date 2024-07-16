@@ -2,6 +2,11 @@ import fs from 'node:fs';
 import sql from 'better-sqlite3';
 import slugify from 'slugify';
 import xss from 'xss';
+import { S3 } from '@aws-sdk/client-s3';
+
+const s3 = new S3({
+    region: 'ap-northeast-2'
+});
 
 const db = sql('meals.db');
 
@@ -26,13 +31,22 @@ export async function saveMeal(meal) {
     const stream = fs.createWriteStream(`public/images/${fileName}`);
     const bufferedImage = await meal.image.arrayBuffer();
 
-    stream.write(Buffer.from(bufferedImage), (error) => {
-        if (error) {
-            throw new Error('Saving image failed!');
-        }
+    s3.putObject({
+        Bucket: 'bucket-for-react-practice-98',
+        Key: fileName,
+        Body: Buffer.from(bufferedImage),
+        ContentType: meal.image.type,
     });
 
-    meal.image = `/images/${fileName}`;
+    meal.image = fileName;
+
+    // stream.write(Buffer.from(bufferedImage), (error) => {
+    //     if (error) {
+    //         throw new Error('Saving image failed!');
+    //     }
+    // });
+
+    // meal.image = `/images/${fileName}`;
 
     db.prepare(`
         INSERT INTO meals
