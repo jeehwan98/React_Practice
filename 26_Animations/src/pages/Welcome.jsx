@@ -7,7 +7,12 @@ import heroImg from '../assets/hero.png';
 export default function WelcomePage() {
   const { scrollY } = useScroll(); // absolute pixels
 
-  useTransform(scrollY, [], []);
+  const yCity = useTransform(scrollY, [0, 200], [0, -100]);
+  const opacityCity = useTransform(scrollY, [0, 200, 300, 500], [1, 0.5, 0.5, 0]);
+  const yHero = useTransform(scrollY, [0, 200], [0, -150]);
+  const opacityHero = useTransform(scrollY, [0, 300, 500], [1, 1, 0]);
+  const yText = useScroll(scrollY, [0, 200, 300, 500], [0, 50, 50, 300]);
+  const scaleText = useScroll(scrollY, [0, 300], [1, 1.5]);
 
   // useMotionValueEvent(scrollY, "change", (latest) => {
   //   console.log("Page scroll: ", latest)
@@ -17,6 +22,7 @@ export default function WelcomePage() {
     <>
       <header id="welcome-header">
         <motion.div
+          style={{ scale: scaleText, y: yText }}
           id="welcome-header-content"
         >
           <h1>Ready for a challenge?</h1>
@@ -26,11 +32,17 @@ export default function WelcomePage() {
         </motion.div>
         <motion.img
           // animate={{ opacity: }}
+          style={{ opacity: opacityCity, y: yCity }}
           src={cityImg}
           alt="A city skyline touched by sunlight"
           id="city-image"
         />
-        <img src={heroImg} alt="A superhero wearing a cape" id="hero-image" />
+        <motion.img
+          style={{ y: yHero, opacity: opacityHero }}
+          src={heroImg}
+          alt="A superhero wearing a cape"
+          id="hero-image"
+        />
       </header>
       <main id="welcome-content">
         <section>
